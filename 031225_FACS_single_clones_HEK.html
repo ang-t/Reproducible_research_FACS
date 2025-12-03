@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angela">
+
+<title>FACS FAST2 - Single Clones HEK Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="031225_FACS_single_clones_HEK_files/libs/clipboard/clipboard.min.js"></script>
+<script src="031225_FACS_single_clones_HEK_files/libs/quarto-html/quarto.js"></script>
+<script src="031225_FACS_single_clones_HEK_files/libs/quarto-html/popper.min.js"></script>
+<script src="031225_FACS_single_clones_HEK_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="031225_FACS_single_clones_HEK_files/libs/quarto-html/anchor.min.js"></script>
+<link href="031225_FACS_single_clones_HEK_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="031225_FACS_single_clones_HEK_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="031225_FACS_single_clones_HEK_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="031225_FACS_single_clones_HEK_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="031225_FACS_single_clones_HEK_files/libs/bootstrap/bootstrap-1bc8a17f135ab3d594c857e9f48e611b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#setup-and-environment-configuration" id="toc-setup-and-environment-configuration" class="nav-link active" data-scroll-target="#setup-and-environment-configuration"><span class="header-section-number">1</span> Setup and Environment Configuration 🛠️</a>
+  <ul class="collapse">
+  <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages"><span class="header-section-number">1.1</span> Load Packages</a></li>
+  <li><a href="#set-directories-and-load-data" id="toc-set-directories-and-load-data" class="nav-link" data-scroll-target="#set-directories-and-load-data"><span class="header-section-number">1.2</span> Set Directories and Load Data</a></li>
+  </ul></li>
+  <li><a href="#data-gating-and-preprocessing" id="toc-data-gating-and-preprocessing" class="nav-link" data-scroll-target="#data-gating-and-preprocessing"><span class="header-section-number">2</span> Data Gating and Preprocessing</a>
+  <ul class="collapse">
+  <li><a href="#define-and-apply-gates" id="toc-define-and-apply-gates" class="nav-link" data-scroll-target="#define-and-apply-gates"><span class="header-section-number">2.1</span> Define and Apply Gates</a></li>
+  <li><a href="#gate-verification-plots" id="toc-gate-verification-plots" class="nav-link" data-scroll-target="#gate-verification-plots"><span class="header-section-number">2.2</span> Gate Verification Plots</a>
+  <ul class="collapse">
+  <li><a href="#life-cells" id="toc-life-cells" class="nav-link" data-scroll-target="#life-cells"><span class="header-section-number">2.2.1</span> Life cells</a></li>
+  <li><a href="#single-cells" id="toc-single-cells" class="nav-link" data-scroll-target="#single-cells"><span class="header-section-number">2.2.2</span> Single cells</a></li>
+  </ul></li>
+  <li><a href="#prepare-metadata" id="toc-prepare-metadata" class="nav-link" data-scroll-target="#prepare-metadata"><span class="header-section-number">2.3</span> Prepare Metadata</a></li>
+  </ul></li>
+  <li><a href="#data-transformation-and-aggregation" id="toc-data-transformation-and-aggregation" class="nav-link" data-scroll-target="#data-transformation-and-aggregation"><span class="header-section-number">3</span> Data Transformation and Aggregation</a>
+  <ul class="collapse">
+  <li><a href="#function-convert-flowset-to-tidy-data" id="toc-function-convert-flowset-to-tidy-data" class="nav-link" data-scroll-target="#function-convert-flowset-to-tidy-data"><span class="header-section-number">3.1</span> Function: Convert flowSet to Tidy Data</a></li>
+  <li><a href="#compute-mean-fluorescence-per-sample" id="toc-compute-mean-fluorescence-per-sample" class="nav-link" data-scroll-target="#compute-mean-fluorescence-per-sample"><span class="header-section-number">3.2</span> Compute Mean Fluorescence per Sample</a></li>
+  </ul></li>
+  <li><a href="#density-plotting-and-analysis" id="toc-density-plotting-and-analysis" class="nav-link" data-scroll-target="#density-plotting-and-analysis"><span class="header-section-number">4</span> Density Plotting and Analysis</a>
+  <ul class="collapse">
+  <li><a href="#function-density-plotting" id="toc-function-density-plotting" class="nav-link" data-scroll-target="#function-density-plotting"><span class="header-section-number">4.1</span> Function: Density Plotting</a></li>
+  <li><a href="#define-plotting-experiments" id="toc-define-plotting-experiments" class="nav-link" data-scroll-target="#define-plotting-experiments"><span class="header-section-number">4.2</span> Define Plotting Experiments</a></li>
+  <li><a href="#generate-and-display-plots" id="toc-generate-and-display-plots" class="nav-link" data-scroll-target="#generate-and-display-plots"><span class="header-section-number">4.3</span> Generate and Display Plots</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">FACS FAST2 - Single Clones HEK Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angela </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="setup-and-environment-configuration" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Setup and Environment Configuration 🛠️</h1>
+<p>This section loads the required R packages and sets up the file paths for the FACS data analysis.</p>
+<section id="load-packages" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="load-packages"><span class="header-section-number">1.1</span> Load Packages</h2>
+<p>We use <code>flowCore</code> and <code>openCyto</code> for fundamental FACS data handling and gating, <code>ggcyto</code> and <code>ggplot2</code> for plotting, and the <code>tidyverse</code> suite (<code>dplyr</code>, <code>stringr</code>, etc.) for data manipulation.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Load required packages ---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Installation steps are commented out but kept for completeness</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># BiocManager::install(c("flowCore", "ggcyto", "openCyto"), update=FALSE, ask=FALSE)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(flowCore)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcyto)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openCyto)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="set-directories-and-load-data" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="set-directories-and-load-data"><span class="header-section-number">1.2</span> Set Directories and Load Data</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Set directories ---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># set working directory</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">"/tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script/"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">getwd</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "/tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a representative base directory path. Replace with your actual path.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>base_dir <span class="ot">&lt;-</span> <span class="st">"/tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fcs_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir, <span class="st">"AT20251107_GFP-mScarlet-BFP"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define and create the 'Plots' directory if it doesn't exist</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>plot_output_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(base_dir, <span class="st">"Test_reproducible_script/Plots"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(plot_output_dir)) <span class="fu">dir.create</span>(plot_output_dir) <span class="co"># &lt;-- THIS CREATES THE FOLDER</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>fcs_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(fcs_dir, <span class="at">pattern=</span><span class="st">"</span><span class="sc">\\</span><span class="st">.fcs$"</span>, <span class="at">full.names=</span><span class="cn">TRUE</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Load FCS files ---</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>flow_data_batch <span class="ot">&lt;-</span> <span class="fu">read.flowSet</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">files=</span>fcs_files, </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">transformation=</span><span class="cn">FALSE</span>, </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">truncate_max_range=</span><span class="cn">FALSE</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(flow_data_batch)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>A flowSet with 27 experiments.
+
+column names(14): FSC-A FSC-H ... PerCP-Cy5-5-A Time</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="data-gating-and-preprocessing" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data Gating and Preprocessing</h1>
+<p>This section defines the sequential gates for quality control (QC) and applies them to the data using a GatingSet object.</p>
+<section id="define-and-apply-gates" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="define-and-apply-gates"><span class="header-section-number">2.1</span> Define and Apply Gates</h2>
+<p>We define gates for Live Cells (based on FSC-A and SSC-A) and Single Cells (based on SSC-W and SSC-H).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Define gates ---</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Live cell gate: Based on forward and side scatter area</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>liveGate <span class="ot">&lt;-</span> <span class="fu">rectangleGate</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">filterId=</span><span class="st">"living"</span>, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"FSC-A"</span><span class="ot">=</span><span class="fu">c</span>(<span class="dv">100000</span>,<span class="dv">260000</span>), </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SSC-A"</span><span class="ot">=</span><span class="fu">c</span>(<span class="dv">10000</span>,<span class="dv">200000</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Single cell gate: Based on side scatter width vs height (to exclude doublets/aggregates)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>singleCellGate <span class="ot">&lt;-</span> <span class="fu">rectangleGate</span>(</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">filterId=</span><span class="st">"single"</span>, </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SSC-W"</span><span class="ot">=</span><span class="fu">c</span>(<span class="dv">50000</span>,<span class="dv">100000</span>), </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SSC-H"</span><span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">150000</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Apply gates using GatingSet ---</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>gs <span class="ot">&lt;-</span> <span class="fu">GatingSet</span>(flow_data_batch)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the 'living' gate to the root population</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="fu">gs_pop_add</span>(gs, liveGate, <span class="at">parent=</span><span class="st">"root"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">recompute</span>(gs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>done!</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add the 'single' gate to the 'living' population</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">gs_pop_add</span>(gs, singleCellGate, <span class="at">parent=</span><span class="st">"living"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">recompute</span>(gs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>done!</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Extract single cell data ---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the flowSet object containing only the events that passed both gates</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>fs_single <span class="ot">&lt;-</span> <span class="fu">gs_pop_get_data</span>(gs, <span class="at">y=</span><span class="st">"living/single"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="gate-verification-plots" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="gate-verification-plots"><span class="header-section-number">2.2</span> Gate Verification Plots</h2>
+<section id="life-cells" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="life-cells"><span class="header-section-number">2.2.1</span> Life cells</h3>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the fifth sample from the original, ungated flowSet</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sample_to_check <span class="ot">&lt;-</span> flow_data_batch[[<span class="dv">5</span>]]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>plot_hex_live_gate <span class="ot">&lt;-</span> <span class="fu">autoplot</span>(sample_to_check, <span class="at">x =</span> <span class="st">"FSC-A"</span>, <span class="at">y =</span> <span class="st">"SSC-A"</span>) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set axis limits to the instrument's full scale for standardized viewing</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggcyto_par_set</span>(<span class="at">limits =</span> <span class="st">"instrument"</span>) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use hexagonal binning (geom_hex) instead of individual points to visualize high density areas</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hex</span>(<span class="at">bins =</span> <span class="dv">500</span>) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Overlay the liveGate defined earlier</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_gate</span>(liveGate) <span class="sc">+</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"QC: Live Gate Check on Sample 5 ("</span>, <span class="fu">identifier</span>(sample_to_check), <span class="st">")"</span>)) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">14</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">file.path</span>(base_dir, <span class="st">"Test_reproducible_script/Plots/QC_LiveGate_FSC_SSC.png"</span>), plot_hex_live_gate, <span class="at">width=</span><span class="dv">8</span>, <span class="at">height=</span><span class="dv">8</span>, <span class="at">dpi=</span><span class="dv">300</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>plot_hex_live_gate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="031225_FACS_single_clones_HEK_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="single-cells" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="single-cells"><span class="header-section-number">2.2.2</span> Single cells</h3>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the fifth sample from the original, ungated flowSet</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sample_to_check <span class="ot">&lt;-</span> flow_data_batch[[<span class="dv">5</span>]]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Temporarily apply the Live Gate to the single sample to isolate the population of interest</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>fs_gated_temp <span class="ot">&lt;-</span> <span class="fu">Subset</span>(sample_to_check, liveGate)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Plot the resulting live population (fs_gated_temp)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plot_hex_single_gate <span class="ot">&lt;-</span> <span class="fu">autoplot</span>(fs_gated_temp, <span class="at">x =</span> <span class="st">"SSC-W"</span>, <span class="at">y =</span> <span class="st">"SSC-H"</span>) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set axis limits to the instrument's full scale for standardized viewing</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggcyto_par_set</span>(<span class="at">limits =</span> <span class="st">"instrument"</span>) <span class="sc">+</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use hexagonal binning to visualize density</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hex</span>(<span class="at">bins =</span> <span class="dv">500</span>) <span class="sc">+</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Overlay the singleCellGate defined earlier</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_gate</span>(singleCellGate) <span class="sc">+</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"QC: Single Cell Gate Check on Live Events (Sample 5)"</span>)) <span class="sc">+</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">14</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">file.path</span>(base_dir,<span class="st">"Test_reproducible_script/Plots/QC_Sample5_HexBin_SingleGate.png"</span>), plot_hex_single_gate, <span class="at">width=</span><span class="dv">8</span>, <span class="at">height=</span><span class="dv">8</span>, <span class="at">dpi=</span><span class="dv">300</span>)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>plot_hex_single_gate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="031225_FACS_single_clones_HEK_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="prepare-metadata" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="prepare-metadata"><span class="header-section-number">2.3</span> Prepare Metadata</h2>
+<p>Extract relevant experimental information (cell line, replicate, time point) from the filenames –&gt; always name them same (cellline, replicate, time treatment)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Prepare metadata ---</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>filenames <span class="ot">&lt;-</span> <span class="fu">sampleNames</span>(fs_single)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>meta <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(filenames, <span class="cf">function</span>(x){</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  parts <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(x, <span class="st">"_"</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  cell_line <span class="ot">&lt;-</span> parts[<span class="dv">3</span>]</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  replicate <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"[^0-9]"</span>, <span class="st">""</span>, parts[<span class="dv">4</span>])</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  time <span class="ot">&lt;-</span> parts[<span class="dv">5</span>]</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"min|h"</span>, time)) time <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">filename=</span>x, cell_line, replicate, time, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(meta) <span class="ot">&lt;-</span> filenames</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="fu">pData</span>(fs_single) <span class="ot">&lt;-</span> meta</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">pData</span>(fs_single))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                           filename
+AT20251107_AT20251103_HEK48_1_022_021.fcs AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_2_023_022.fcs AT20251107_AT20251103_HEK48_2_023_022.fcs
+AT20251107_AT20251103_HEK48_3_024_023.fcs AT20251107_AT20251103_HEK48_3_024_023.fcs
+AT20251107_AT20251103_HEK49_1_025_024.fcs AT20251107_AT20251103_HEK49_1_025_024.fcs
+AT20251107_AT20251103_HEK49_3_026_025.fcs AT20251107_AT20251103_HEK49_3_026_025.fcs
+AT20251107_AT20251103_HEK52_1_027_026.fcs AT20251107_AT20251103_HEK52_1_027_026.fcs
+                                          cell_line time replicate
+AT20251107_AT20251103_HEK48_1_022_021.fcs     HEK48   NA         1
+AT20251107_AT20251103_HEK48_2_023_022.fcs     HEK48   NA         2
+AT20251107_AT20251103_HEK48_3_024_023.fcs     HEK48   NA         3
+AT20251107_AT20251103_HEK49_1_025_024.fcs     HEK49   NA         1
+AT20251107_AT20251103_HEK49_3_026_025.fcs     HEK49   NA         3
+AT20251107_AT20251103_HEK52_1_027_026.fcs     HEK52   NA         1</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="data-transformation-and-aggregation" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Data Transformation and Aggregation</h1>
+<p>This section converts the gated flowSet into a tidy data frame and calculates per-sample summary statistics.</p>
+<section id="function-convert-flowset-to-tidy-data" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="function-convert-flowset-to-tidy-data"><span class="header-section-number">3.1</span> Function: Convert flowSet to Tidy Data</h2>
+<p>A function to transform the flowSet into a single, wide format data.frame suitable for ggplot2 and dplyr.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Function: Convert flowSet to tidy dataframe ---</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>process_fluorescence_data_wide <span class="ot">&lt;-</span> <span class="cf">function</span>(flow_data) {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(<span class="fu">pData</span>(flow_data))) <span class="fu">stop</span>(<span class="st">"flowSet has no pData / metadata"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  all_data <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_along</span>(flow_data), <span class="cf">function</span>(i) {</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    f <span class="ot">&lt;-</span> flow_data[[i]]</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    sample_name <span class="ot">&lt;-</span> <span class="fu">sampleNames</span>(flow_data)[i]</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Select and rename channels for clarity</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">exprs</span>(f)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(<span class="st">`</span><span class="at">GFP-A</span><span class="st">`</span>, <span class="st">`</span><span class="at">DsRed-A</span><span class="st">`</span>, <span class="st">`</span><span class="at">Alexa Fluor 405-A</span><span class="st">`</span>, <span class="st">`</span><span class="at">SSC-A</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rename</span>(<span class="at">GFP=</span><span class="st">`</span><span class="at">GFP-A</span><span class="st">`</span>, <span class="at">mScarlet=</span><span class="st">`</span><span class="at">DsRed-A</span><span class="st">`</span>, <span class="at">BFP=</span><span class="st">`</span><span class="at">Alexa Fluor 405-A</span><span class="st">`</span>, <span class="at">SSC=</span><span class="st">`</span><span class="at">SSC-A</span><span class="st">`</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get metadata for the current sample</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    meta <span class="ot">&lt;-</span> <span class="fu">pData</span>(flow_data)[sample_name, , drop<span class="ot">=</span><span class="cn">FALSE</span>]</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine metadata with fluorescence data</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(meta[<span class="fu">rep</span>(<span class="dv">1</span>,<span class="fu">nrow</span>(df)),], <span class="at">Sample=</span>sample_name, df)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>()</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(all_data)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>df_wide <span class="ot">&lt;-</span> <span class="fu">process_fluorescence_data_wide</span>(fs_single)</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_wide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                             filename
+AT20251107_AT20251103_HEK48_1_022_021.fcs   AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.1 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.2 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.3 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.4 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.5 AT20251107_AT20251103_HEK48_1_022_021.fcs
+                                            cell_line time replicate
+AT20251107_AT20251103_HEK48_1_022_021.fcs       HEK48   NA         1
+AT20251107_AT20251103_HEK48_1_022_021.fcs.1     HEK48   NA         1
+AT20251107_AT20251103_HEK48_1_022_021.fcs.2     HEK48   NA         1
+AT20251107_AT20251103_HEK48_1_022_021.fcs.3     HEK48   NA         1
+AT20251107_AT20251103_HEK48_1_022_021.fcs.4     HEK48   NA         1
+AT20251107_AT20251103_HEK48_1_022_021.fcs.5     HEK48   NA         1
+                                                                               Sample
+AT20251107_AT20251103_HEK48_1_022_021.fcs   AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.1 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.2 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.3 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.4 AT20251107_AT20251103_HEK48_1_022_021.fcs
+AT20251107_AT20251103_HEK48_1_022_021.fcs.5 AT20251107_AT20251103_HEK48_1_022_021.fcs
+                                                 GFP mScarlet     BFP      SSC
+AT20251107_AT20251103_HEK48_1_022_021.fcs   42.40000    70.95 4991.30 55140.67
+AT20251107_AT20251103_HEK48_1_022_021.fcs.1 27.03000     7.15 6396.56 55425.81
+AT20251107_AT20251103_HEK48_1_022_021.fcs.2 89.03999   -46.75 9958.18 74076.51
+AT20251107_AT20251103_HEK48_1_022_021.fcs.3 70.49000    -2.20 5278.42 66187.98
+AT20251107_AT20251103_HEK48_1_022_021.fcs.4 63.60000    -7.70 5902.98 56580.15
+AT20251107_AT20251103_HEK48_1_022_021.fcs.5 55.12000    -9.35 5141.52 50414.13</code></pre>
+</div>
+</div>
+</section>
+<section id="compute-mean-fluorescence-per-sample" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="compute-mean-fluorescence-per-sample"><span class="header-section-number">3.2</span> Compute Mean Fluorescence per Sample</h2>
+<p>Calculate the mean fluorescence intensity for the key channels (GFP and BFP) for each unique sample.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Compute mean per sample ---</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df_wide <span class="ot">&lt;-</span> df_wide <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sample) <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">GFP_mean =</span> <span class="fu">mean</span>(GFP, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">BFP_mean =</span> <span class="fu">mean</span>(BFP, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the new columns</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>distinct_means <span class="ot">&lt;-</span> df_wide <span class="sc">%&gt;%</span> </span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Sample, GFP_mean, BFP_mean) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>()</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co">#only means</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(distinct_means) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  Sample                                    GFP_mean BFP_mean
+  &lt;chr&gt;                                        &lt;dbl&gt;    &lt;dbl&gt;
+1 AT20251107_AT20251103_HEK48_1_022_021.fcs     84.7    6015.
+2 AT20251107_AT20251103_HEK48_2_023_022.fcs     72.3    6258.
+3 AT20251107_AT20251103_HEK48_3_024_023.fcs     76.3    6115.
+4 AT20251107_AT20251103_HEK49_1_025_024.fcs     83.7    7791.
+5 AT20251107_AT20251103_HEK49_3_026_025.fcs     80.8    9587.
+6 AT20251107_AT20251103_HEK52_1_027_026.fcs   5738.     1893.</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#only whole data set</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_wide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 11
+  filename cell_line time  replicate Sample   GFP mScarlet   BFP    SSC GFP_mean
+  &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1 AT20251… HEK48     NA    1         AT202…  42.4    71.0  4991. 55141.     84.7
+2 AT20251… HEK48     NA    1         AT202…  27.0     7.15 6397. 55426.     84.7
+3 AT20251… HEK48     NA    1         AT202…  89.0   -46.8  9958. 74077.     84.7
+4 AT20251… HEK48     NA    1         AT202…  70.5    -2.20 5278. 66188.     84.7
+5 AT20251… HEK48     NA    1         AT202…  63.6    -7.70 5903. 56580.     84.7
+6 AT20251… HEK48     NA    1         AT202…  55.1    -9.35 5142. 50414.     84.7
+# ℹ 1 more variable: BFP_mean &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="density-plotting-and-analysis" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Density Plotting and Analysis</h1>
+<p>This section defines a reusable plotting function and sets up parameters for various experiments, followed by the plot generation.</p>
+<section id="function-density-plotting" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="function-density-plotting"><span class="header-section-number">4.1</span> Function: Density Plotting</h2>
+<p>A robust function for generating density plots of fluorescence channels, with customizable log scaling, color palettes, and facetting.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Function: Convert flowSet to tidy dataframe ---</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>plot_density <span class="ot">&lt;-</span> <span class="cf">function</span>(df, x_var, color_var, <span class="at">facet_var=</span><span class="cn">NULL</span>, <span class="at">colors=</span><span class="cn">NULL</span>, <span class="at">labels=</span><span class="cn">NULL</span>, <span class="at">title=</span><span class="st">""</span>, <span class="at">log_scale=</span><span class="cn">TRUE</span>, <span class="at">file=</span><span class="cn">NULL</span>) {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Base font size is reduced to 12 to help fit all elements into the small display area</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes_string</span>(<span class="at">x=</span>x_var, <span class="at">color=</span>color_var)) <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha=</span><span class="fl">0.4</span>, <span class="at">linewidth=</span><span class="fl">1.8</span>) <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Use conditional scale_x_log10</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    {<span class="cf">if</span>(log_scale) <span class="fu">scale_x_log10</span>()} <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">expand=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply custom colors and labels if provided</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    {<span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(colors)) <span class="fu">scale_color_manual</span>(<span class="at">values=</span>colors, <span class="at">labels=</span>labels)} <span class="sc">+</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply facetting if provided</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    {<span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(facet_var)) <span class="fu">facet_wrap</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">"~"</span>, facet_var)))} <span class="sc">+</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">title=</span>title, </span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">x=</span><span class="fu">paste</span>(x_var,<span class="st">"Intensity"</span>), </span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">y=</span><span class="st">"Density"</span>, </span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">color=</span><span class="cn">NULL</span>, </span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill=</span><span class="cn">NULL</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_light</span>(<span class="at">base_size=</span><span class="dv">12</span>) <span class="sc">+</span> <span class="co"># &lt;-- Base font size reduction</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">18</span>, <span class="at">face=</span><span class="st">"bold"</span>, <span class="at">hjust=</span><span class="fl">0.5</span>), </span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">14</span>, <span class="at">face=</span><span class="st">"bold"</span>),          </span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">12</span>),                        </span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">13</span>, <span class="at">face=</span><span class="st">"bold"</span>),          </span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Legend text size increased to maintain legibility despite smaller base size</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">17</span>, <span class="at">face=</span><span class="st">"bold"</span>),        </span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">16</span>),                      </span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position=</span><span class="st">"bottom"</span>,</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.direction=</span><span class="st">"horizontal"</span>,</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.key.size=</span><span class="fu">unit</span>(<span class="fl">1.0</span>, <span class="st">"cm"</span>),                          </span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">size=</span><span class="fl">1.5</span>),</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.ticks =</span> <span class="fu">element_line</span>(<span class="at">size=</span><span class="fl">1.2</span>)</span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">color=</span><span class="fu">guide_legend</span>(<span class="at">nrow=</span><span class="dv">2</span>, <span class="at">byrow=</span><span class="cn">TRUE</span>))</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># This line saves the high-resolution file (15x8 inches) to the 'Plots' directory</span></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(file)) <span class="fu">ggsave</span>(<span class="fu">file.path</span>(base_dir, file), p, <span class="at">width=</span><span class="dv">15</span>, <span class="at">height=</span><span class="dv">8</span>, <span class="at">dpi=</span><span class="dv">300</span>)</span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(p)</span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="define-plotting-experiments" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="define-plotting-experiments"><span class="header-section-number">4.2</span> Define Plotting Experiments</h2>
+<p>A list defining the parameters for four different plotting scenarios (MYC, FRB, BFP, rapa), including data filtering, axis variables, colors, and file names.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Define all plotting experiments ---</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>plot_params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">MYC =</span> <span class="fu">list</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Filter using logical vector; note the use of global 'df_wide'</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">filter_expr =</span> df_wide<span class="sc">$</span>cell_line <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"HEK52"</span>,<span class="st">"HEK54"</span>,<span class="st">"HEK55"</span>,<span class="st">"HEK48"</span>),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x_var=</span><span class="st">"GFP"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">color_var=</span><span class="st">"cell_line"</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">facet_var=</span><span class="st">"replicate"</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">colors=</span><span class="fu">c</span>(<span class="st">"HEK54"</span><span class="ot">=</span><span class="st">"#440154"</span>,<span class="st">"HEK48"</span><span class="ot">=</span><span class="st">"#6A5ACD"</span>,<span class="st">"HEK55"</span><span class="ot">=</span><span class="st">"#31688E"</span>,<span class="st">"HEK52"</span><span class="ot">=</span><span class="st">"#FDE725"</span>),</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"HEK52"</span><span class="ot">=</span><span class="st">"yFAST"</span>,<span class="st">"HEK54"</span><span class="ot">=</span><span class="st">"MYC/MAX"</span>,<span class="st">"HEK55"</span><span class="ot">=</span><span class="st">"MYCΔbHLH/MAX"</span>,<span class="st">"HEK48"</span><span class="ot">=</span><span class="st">"empty/empty"</span>),</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"GFP Density by Cell Line (MYC Clones)"</span>,</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">file=</span><span class="st">"Test_reproducible_script/Plots/density_MYC.png"</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">FRB =</span> <span class="fu">list</span>(</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">filter_expr =</span> df_wide<span class="sc">$</span>cell_line <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"HEK52"</span>,<span class="st">"HEK49"</span>,<span class="st">"HEK53"</span>,<span class="st">"HEK48"</span>) <span class="sc">&amp;</span> </span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>                  (df_wide<span class="sc">$</span>cell_line <span class="sc">!=</span> <span class="st">"HEK53"</span> <span class="sc">|</span> df_wide<span class="sc">$</span>time<span class="sc">==</span><span class="st">"4h"</span>),</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x_var=</span><span class="st">"GFP"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">color_var=</span><span class="st">"cell_line"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">facet_var=</span><span class="st">"replicate"</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">colors=</span><span class="fu">c</span>(<span class="st">"HEK49"</span><span class="ot">=</span><span class="st">"#440154"</span>, <span class="st">"HEK48"</span><span class="ot">=</span><span class="st">"#6A5ACD"</span>, <span class="st">"HEK53"</span><span class="ot">=</span><span class="st">"#31688E"</span>, <span class="st">"HEK52"</span><span class="ot">=</span><span class="st">"#FDE725"</span>),</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"HEK52"</span><span class="ot">=</span><span class="st">"yFAST"</span>,<span class="st">"HEK53"</span><span class="ot">=</span><span class="st">"FRB/FkBP"</span>,<span class="st">"HEK49"</span><span class="ot">=</span><span class="st">"_/FkBP"</span>,<span class="st">"HEK48"</span><span class="ot">=</span><span class="st">"empty/empty"</span>),</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"GFP Density by Cell Line (FRB/FkBP Clones)"</span>,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">file=</span><span class="st">"Test_reproducible_script/Plots/density_FRB.png"</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">BFP =</span> <span class="fu">list</span>(</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">filter_expr =</span> df_wide<span class="sc">$</span>cell_line <span class="sc">!=</span> <span class="st">"HEKwt"</span>,</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x_var=</span><span class="st">"BFP"</span>,</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">color_var=</span><span class="st">"replicate"</span>,</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">facet_var=</span><span class="st">"cell_line"</span>,</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">colors=</span><span class="fu">c</span>(<span class="st">"1"</span><span class="ot">=</span><span class="st">"#440154"</span>,<span class="st">"2"</span><span class="ot">=</span><span class="st">"#6A5ACD"</span>,<span class="st">"3"</span><span class="ot">=</span><span class="st">"#31688E"</span>),</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"1"</span><span class="ot">=</span><span class="st">"Replicate 1"</span>, <span class="st">"2"</span><span class="ot">=</span><span class="st">"Replicate 2"</span>, <span class="st">"3"</span><span class="ot">=</span><span class="st">"Replicate 3"</span>),</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"BFP Density by Cell Line (BFP Channel)"</span>,</span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">file=</span><span class="st">"Test_reproducible_script/Plots/density_BFP.png"</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">rapa =</span> <span class="fu">list</span>(</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">filter_expr =</span> df_wide<span class="sc">$</span>cell_line<span class="sc">==</span><span class="st">"HEK53"</span>,</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x_var=</span><span class="st">"GFP"</span>,</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">color_var=</span><span class="st">"time"</span>,</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">facet_var=</span><span class="st">"replicate"</span>,</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">colors=</span><span class="fu">c</span>(<span class="st">"0min"</span><span class="ot">=</span><span class="st">"#FDE725"</span>,<span class="st">"15min"</span><span class="ot">=</span><span class="st">"#31688E"</span>,<span class="st">"1h"</span><span class="ot">=</span><span class="st">"#6A5ACD"</span>,<span class="st">"4h"</span><span class="ot">=</span><span class="st">"#440154"</span>),</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0min"</span><span class="ot">=</span><span class="st">"0 min"</span>, <span class="st">"15min"</span><span class="ot">=</span><span class="st">"15 min"</span>, <span class="st">"1h"</span><span class="ot">=</span><span class="st">"1 hour"</span>, <span class="st">"4h"</span><span class="ot">=</span><span class="st">"4 hours"</span>),</span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"GFP Density by Time of Rapamycin Treatment"</span>,</span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">file=</span><span class="st">"Test_reproducible_script/Plots/density_rapa.png"</span></span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="generate-and-display-plots" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="generate-and-display-plots"><span class="header-section-number">4.3</span> Generate and Display Plots</h2>
+<p>Loop through the defined parameters to generate and save each plot. The last plot in the loop will be displayed in the Quarto output.</p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Generate all plots ---</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># All plots are saved in this loop; only the last one is displayed.</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>all_plots <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(exp_name <span class="cf">in</span> <span class="fu">names</span>(plot_params)) {</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> plot_params[[exp_name]]</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Filter the data frame</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  df_filtered <span class="ot">&lt;-</span> df_wide <span class="sc">%&gt;%</span> <span class="fu">filter</span>(params<span class="sc">$</span>filter_expr)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate the plot (which internally saves the file)</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">plot_density</span>(</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    df_filtered,</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x_var =</span> params<span class="sc">$</span>x_var,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">color_var =</span> params<span class="sc">$</span>color_var,</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">facet_var =</span> params<span class="sc">$</span>facet_var,</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">colors =</span> params<span class="sc">$</span>colors,</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> params<span class="sc">$</span>labels,</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> params<span class="sc">$</span>title,</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> params<span class="sc">$</span>file </span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- CONFIRMATION MESSAGE ---</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">paste0</span>(<span class="st">"SUCCESS: Plot '"</span>, exp_name, <span class="st">"' saved to: "</span>, <span class="fu">file.path</span>(base_dir, params<span class="sc">$</span>file), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  all_plots[[exp_name]] <span class="ot">&lt;-</span> p</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SUCCESS: Plot 'MYC' saved to: /tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script/Plots/density_MYC.png</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SUCCESS: Plot 'FRB' saved to: /tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script/Plots/density_FRB.png</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SUCCESS: Plot 'BFP' saved to: /tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script/Plots/density_BFP.png</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SUCCESS: Plot 'rapa' saved to: /tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script/Plots/density_rapa.png</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the Rapamycin plot as an example in the Quarto document</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(all_plots<span class="sc">$</span>rapa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="031225_FACS_single_clones_HEK_files/figure-html/generate-plots-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

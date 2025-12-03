@@ -1,0 +1,389 @@
+---
+title: "FACS FAST2 - Single Clones HEK Analysis"
+author: "Angela"
+format:
+  html:
+    toc: true
+    code-fold: true
+    number-sections: true
+---
+
+# Setup and Environment Configuration 🛠️
+
+This section loads the required R packages and sets up the file paths for the FACS data analysis.
+
+## Load Packages
+
+We use `flowCore` and `openCyto` for fundamental FACS data handling and gating, `ggcyto` and `ggplot2` for plotting, and the `tidyverse` suite (`dplyr`, `stringr`, etc.) for data manipulation.
+
+```{r load-packages, message=FALSE, warning=FALSE}
+# --- Load required packages ---
+# Note: Installation steps are commented out but kept for completeness
+# if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install(c("flowCore", "ggcyto", "openCyto"), update=FALSE, ask=FALSE)
+
+library(flowCore)
+library(ggcyto)
+library(openCyto)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(patchwork)
+library(gridExtra)
+library(grid)
+```
+
+## Set Directories and Load Data
+
+```{r}
+# --- Set directories ---
+# set working directory
+setwd("/tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK/Test_reproducible_script/")
+getwd()
+
+# Define a representative base directory path. Replace with your actual path.
+base_dir <- "/tachyon/groups/scratch/gdiss/Angela/03_Projects/07_splitFAST/splitFAST2/02_FACS_on_single_clones_HEK"
+fcs_dir <- file.path(base_dir, "AT20251107_GFP-mScarlet-BFP")
+
+# Define and create the 'Plots' directory if it doesn't exist
+plot_output_dir <- file.path(base_dir, "Test_reproducible_script/Plots")
+if (!dir.exists(plot_output_dir)) dir.create(plot_output_dir) # <-- THIS CREATES THE FOLDER
+
+fcs_files <- list.files(fcs_dir, pattern="\\.fcs$", full.names=TRUE)
+
+# --- Load FCS files ---
+flow_data_batch <- read.flowSet(
+  files=fcs_files, 
+  transformation=FALSE, 
+  truncate_max_range=FALSE
+)
+
+print(flow_data_batch)
+```
+# Data Gating and Preprocessing 
+This section defines the sequential gates for quality control (QC) and applies them to the data using a GatingSet object.
+
+## Define and Apply Gates
+We define gates for Live Cells (based on FSC-A and SSC-A) and Single Cells (based on SSC-W and SSC-H).
+
+
+```{r}
+
+# --- Define gates ---
+# Live cell gate: Based on forward and side scatter area
+liveGate <- rectangleGate(
+  filterId="living", 
+  "FSC-A"=c(100000,260000), 
+  "SSC-A"=c(10000,200000)
+)
+
+# Single cell gate: Based on side scatter width vs height (to exclude doublets/aggregates)
+singleCellGate <- rectangleGate(
+  filterId="single", 
+  "SSC-W"=c(50000,100000), 
+  "SSC-H"=c(0,150000)
+)
+
+# --- Apply gates using GatingSet ---
+gs <- GatingSet(flow_data_batch)
+
+# Add the 'living' gate to the root population
+gs_pop_add(gs, liveGate, parent="root")
+recompute(gs)
+
+# Add the 'single' gate to the 'living' population
+gs_pop_add(gs, singleCellGate, parent="living")
+recompute(gs)
+
+# --- Extract single cell data ---
+# Get the flowSet object containing only the events that passed both gates
+fs_single <- gs_pop_get_data(gs, y="living/single")
+
+```
+
+
+## Gate Verification Plots 
+### Life cells
+
+
+```{r fig.width=8, fig.height=4, fig.align='center', warning=FALSE}
+# Select the fifth sample from the original, ungated flowSet
+sample_to_check <- flow_data_batch[[5]]
+
+plot_hex_live_gate <- autoplot(sample_to_check, x = "FSC-A", y = "SSC-A") +
+  # Set axis limits to the instrument's full scale for standardized viewing
+  ggcyto_par_set(limits = "instrument") +
+  # Use hexagonal binning (geom_hex) instead of individual points to visualize high density areas
+  geom_hex(bins = 500) +
+  # Overlay the liveGate defined earlier
+  geom_gate(liveGate) +
+  labs(title = paste0("QC: Live Gate Check on Sample 5 (", identifier(sample_to_check), ")")) +
+  theme_bw(base_size = 14)
+
+# Save the plot
+ggsave(file.path(base_dir, "Test_reproducible_script/Plots/QC_LiveGate_FSC_SSC.png"), plot_hex_live_gate, width=8, height=8, dpi=300)
+
+plot_hex_live_gate
+
+```
+
+
+### Single cells
+
+
+```{r fig.height=4, fig.align='center', warning=FALSE}
+
+# Select the fifth sample from the original, ungated flowSet
+sample_to_check <- flow_data_batch[[5]]
+
+# 1. Temporarily apply the Live Gate to the single sample to isolate the population of interest
+fs_gated_temp <- Subset(sample_to_check, liveGate)
+# 2. Plot the resulting live population (fs_gated_temp)
+plot_hex_single_gate <- autoplot(fs_gated_temp, x = "SSC-W", y = "SSC-H") +
+  # Set axis limits to the instrument's full scale for standardized viewing
+  ggcyto_par_set(limits = "instrument") +
+  # Use hexagonal binning to visualize density
+  geom_hex(bins = 500) +
+  # Overlay the singleCellGate defined earlier
+  geom_gate(singleCellGate) +
+  labs(title = paste0("QC: Single Cell Gate Check on Live Events (Sample 5)")) +
+  theme_bw(base_size = 14)
+
+# Save the plot
+ggsave(file.path(base_dir,"Test_reproducible_script/Plots/QC_Sample5_HexBin_SingleGate.png"), plot_hex_single_gate, width=8, height=8, dpi=300)
+
+plot_hex_single_gate
+```
+
+
+## Prepare Metadata
+Extract relevant experimental information (cell line, replicate, time point) from the filenames --> always name them same (cellline, replicate, time treatment)
+
+```{r}
+
+
+# --- Prepare metadata ---
+filenames <- sampleNames(fs_single)
+meta <- do.call(rbind, lapply(filenames, function(x){
+  parts <- strsplit(x, "_")[[1]]
+  cell_line <- parts[3]
+  replicate <- gsub("[^0-9]", "", parts[4])
+  time <- parts[5]
+  if(!grepl("min|h", time)) time <- NA
+  data.frame(filename=x, cell_line, replicate, time, stringsAsFactors = FALSE)
+}))
+rownames(meta) <- filenames
+pData(fs_single) <- meta
+
+head(pData(fs_single))
+
+```
+
+
+# Data Transformation and Aggregation
+This section converts the gated flowSet into a tidy data frame and calculates per-sample summary statistics.
+
+## Function: Convert flowSet to Tidy Data
+A function to transform the flowSet into a single, wide format data.frame suitable for ggplot2 and dplyr.
+
+
+
+
+```{r}
+# --- Function: Convert flowSet to tidy dataframe ---
+process_fluorescence_data_wide <- function(flow_data) {
+  if(is.null(pData(flow_data))) stop("flowSet has no pData / metadata")
+  
+  all_data <- lapply(seq_along(flow_data), function(i) {
+    f <- flow_data[[i]]
+    sample_name <- sampleNames(flow_data)[i]
+    
+    # Select and rename channels for clarity
+    df <- as.data.frame(exprs(f)) %>%
+      select(`GFP-A`, `DsRed-A`, `Alexa Fluor 405-A`, `SSC-A`) %>%
+      rename(GFP=`GFP-A`, mScarlet=`DsRed-A`, BFP=`Alexa Fluor 405-A`, SSC=`SSC-A`)
+    
+    # Get metadata for the current sample
+    meta <- pData(flow_data)[sample_name, , drop=FALSE]
+    
+    # Combine metadata with fluorescence data
+    cbind(meta[rep(1,nrow(df)),], Sample=sample_name, df)
+  }) %>% bind_rows()
+  
+  return(all_data)
+}
+
+df_wide <- process_fluorescence_data_wide(fs_single)
+head(df_wide)
+```
+
+## Compute Mean Fluorescence per Sample
+Calculate the mean fluorescence intensity for the key channels (GFP and BFP) for each unique sample.
+
+```{r}
+# --- Compute mean per sample ---
+df_wide <- df_wide %>%
+  group_by(Sample) %>%
+  mutate(
+    GFP_mean = mean(GFP, na.rm=TRUE),
+    BFP_mean = mean(BFP, na.rm=TRUE)
+  ) %>%
+  ungroup()
+
+# Check the new columns
+distinct_means <- df_wide %>% 
+  select(Sample, GFP_mean, BFP_mean) %>% 
+  distinct()
+#only means
+head(distinct_means) 
+#only whole data set
+head(df_wide)
+```
+# Density Plotting and Analysis
+
+This section defines a reusable plotting function and sets up parameters for various experiments, followed by the plot generation.
+
+## Function: Density Plotting
+
+A robust function for generating density plots of fluorescence channels, with customizable log scaling, color palettes, and facetting.
+
+```{r density-plotting-function}
+# --- Function: Convert flowSet to tidy dataframe ---
+plot_density <- function(df, x_var, color_var, facet_var=NULL, colors=NULL, labels=NULL, title="", log_scale=TRUE, file=NULL) {
+  
+  # Base font size is reduced to 12 to help fit all elements into the small display area
+  p <- ggplot(df, aes_string(x=x_var, color=color_var)) +
+    geom_density(alpha=0.4, linewidth=1.8) +
+    # Use conditional scale_x_log10
+    {if(log_scale) scale_x_log10()} +
+    scale_y_continuous(expand=c(0,0)) +
+    # Apply custom colors and labels if provided
+    {if(!is.null(colors)) scale_color_manual(values=colors, labels=labels)} +
+    # Apply facetting if provided
+    {if(!is.null(facet_var)) facet_wrap(as.formula(paste("~", facet_var)))} +
+    labs(
+      title=title, 
+      x=paste(x_var,"Intensity"), 
+      y="Density", 
+      color=NULL, 
+      fill=NULL
+    ) +
+    theme_light(base_size=12) + # <-- Base font size reduction
+    theme(
+      plot.title = element_text(size=18, face="bold", hjust=0.5), 
+      axis.title = element_text(size=14, face="bold"),          
+      axis.text = element_text(size=12),                        
+      strip.text = element_text(size=13, face="bold"),          
+      # Legend text size increased to maintain legibility despite smaller base size
+      legend.title = element_text(size=17, face="bold"),        
+      legend.text = element_text(size=16),                      
+      legend.position="bottom",
+      legend.direction="horizontal",
+      legend.key.size=unit(1.0, "cm"),                          
+      panel.border = element_rect(size=1.5),
+      axis.ticks = element_line(size=1.2)
+    ) +
+    guides(color=guide_legend(nrow=2, byrow=TRUE))
+  
+  # This line saves the high-resolution file (15x8 inches) to the 'Plots' directory
+  if(!is.null(file)) ggsave(file.path(base_dir, file), p, width=15, height=8, dpi=300)
+  return(p)
+}
+```
+
+## Define Plotting Experiments
+A list defining the parameters for four different plotting scenarios (MYC, FRB, BFP, rapa), including data filtering, axis variables, colors, and file names.
+
+
+
+```{r}
+
+# --- Define all plotting experiments ---
+plot_params <- list(
+  MYC = list(
+    # Filter using logical vector; note the use of global 'df_wide'
+    filter_expr = df_wide$cell_line %in% c("HEK52","HEK54","HEK55","HEK48"),
+    x_var="GFP",
+    color_var="cell_line",
+    facet_var="replicate",
+    colors=c("HEK54"="#440154","HEK48"="#6A5ACD","HEK55"="#31688E","HEK52"="#FDE725"),
+    labels=c("HEK52"="yFAST","HEK54"="MYC/MAX","HEK55"="MYCΔbHLH/MAX","HEK48"="empty/empty"),
+    title="GFP Density by Cell Line (MYC Clones)",
+    file="Test_reproducible_script/Plots/density_MYC.png"
+  ),
+  FRB = list(
+    filter_expr = df_wide$cell_line %in% c("HEK52","HEK49","HEK53","HEK48") & 
+                  (df_wide$cell_line != "HEK53" | df_wide$time=="4h"),
+    x_var="GFP",
+    color_var="cell_line",
+    facet_var="replicate",
+    colors=c("HEK49"="#440154", "HEK48"="#6A5ACD", "HEK53"="#31688E", "HEK52"="#FDE725"),
+    labels=c("HEK52"="yFAST","HEK53"="FRB/FkBP","HEK49"="_/FkBP","HEK48"="empty/empty"),
+    title="GFP Density by Cell Line (FRB/FkBP Clones)",
+    file="Test_reproducible_script/Plots/density_FRB.png"
+  ),
+  BFP = list(
+    filter_expr = df_wide$cell_line != "HEKwt",
+    x_var="BFP",
+    color_var="replicate",
+    facet_var="cell_line",
+    colors=c("1"="#440154","2"="#6A5ACD","3"="#31688E"),
+    labels=c("1"="Replicate 1", "2"="Replicate 2", "3"="Replicate 3"),
+    title="BFP Density by Cell Line (BFP Channel)",
+    file="Test_reproducible_script/Plots/density_BFP.png"
+  ),
+  rapa = list(
+    filter_expr = df_wide$cell_line=="HEK53",
+    x_var="GFP",
+    color_var="time",
+    facet_var="replicate",
+    colors=c("0min"="#FDE725","15min"="#31688E","1h"="#6A5ACD","4h"="#440154"),
+    labels=c("0min"="0 min", "15min"="15 min", "1h"="1 hour", "4h"="4 hours"),
+    title="GFP Density by Time of Rapamycin Treatment",
+    file="Test_reproducible_script/Plots/density_rapa.png"
+  )
+)
+```
+
+
+## Generate and Display Plots
+Loop through the defined parameters to generate and save each plot. The last plot in the loop will be displayed in the Quarto output.
+
+
+```{r generate-plots, fig.width=8, fig.height=4, fig.align='center', warning=FALSE}
+# --- Generate all plots ---
+# All plots are saved in this loop; only the last one is displayed.
+all_plots <- list()
+for(exp_name in names(plot_params)) {
+  params <- plot_params[[exp_name]]
+  
+  # Filter the data frame
+  df_filtered <- df_wide %>% filter(params$filter_expr)
+  
+  # Generate the plot (which internally saves the file)
+  p <- plot_density(
+    df_filtered,
+    x_var = params$x_var,
+    color_var = params$color_var,
+    facet_var = params$facet_var,
+    colors = params$colors,
+    labels = params$labels,
+    title = params$title,
+    file = params$file 
+  )
+  
+  # --- CONFIRMATION MESSAGE ---
+  cat(paste0("SUCCESS: Plot '", exp_name, "' saved to: ", file.path(base_dir, params$file), "\n"))
+  
+  all_plots[[exp_name]] <- p
+}
+
+# Display the Rapamycin plot as an example in the Quarto document
+print(all_plots$rapa)
+```
+
+
+
+```{r}
+```
