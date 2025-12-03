@@ -8,7 +8,7 @@ format:
     number-sections: true
 ---
 
-# Setup and Environment Configuration 🛠️
+# Setup and Environment Configuration 
 
 This section loads the required R packages and sets up the file paths for the FACS data analysis.
 
